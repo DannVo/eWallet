@@ -86,7 +86,7 @@ const AdminController = {
 
         const update = {
             acc_status: 2,
-            acc_info: 'authorized'
+            acc_info: 'Đã xác minh'
         }
 
         await Account.findOneAndUpdate(filter, update, {
@@ -95,20 +95,20 @@ const AdminController = {
         .then(doc => {
             req.session.flash = {
                 type: 'success',
-                intro: 'Update Successfully',
-                message: 'Authorized a user'
+                intro: 'Cập nhật thành công',
+                message: 'Đã xác minh tài khoản'
             }
 
             res.status(200).json({
                 code: 0,
-                message: 'Admin xác minh tài khoản thành công',
+                message: 'Tài khoản được xác minh thành công',
                 data: doc
             })
         })
         .catch(err => {
             res.status(500).json({
                 code: 1,
-                message: 'Admin xác minh tài khoản thất bại',
+                message: 'Tài khoản xác minh thất bại',
                 err: err.message
             })
         })

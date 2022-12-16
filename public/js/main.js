@@ -744,7 +744,7 @@ if(change_pass){
   }
 }
 
-///////////////first change
+// xu ly lan dau dang nhap
 const first_change = document.querySelector('.first_change')
 if(first_change){
   function handleFirstChange(){
@@ -1598,7 +1598,7 @@ if(transfer){
 
 
 
-///////BUY CARDS
+// Mua thẻ
 const buy_cards = document.querySelector('.buy_cards-content')
 
 if(buy_cards){

@@ -36,7 +36,7 @@ async function validateAccount(username, password){
         if (doc.acc_status == -99) {
             return {
                 code: 100,
-                msg: 'Tài khoản đã bị khóa do nhập sai mật khẩu nhiều lần, vui lòng liên hệ quản trị viên để được hỗ trợ'
+                msg: 'Tài khoản đã bị vô hiêu hóa, vui lòng liên hệ tổng đài 18001008'
             }
         }
 

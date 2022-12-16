@@ -1,4 +1,5 @@
 var multiparty = require('multiparty')
+var mongoose = require('mongoose');
 const register = require('../helpers/register')
 const login = require('../helpers/login')
 const jwt = require('jsonwebtoken')
@@ -21,13 +22,13 @@ const UserController = {
             // console.log(fields)
             // console.log(files)
             if (err) return res.status(400).send('unknown error when register')
-            const resultMsg = register.userRegister( fields, files, 'cmnd')
+            const resultMsg = register.regisUser( fields, files, 'cmnd')
             resultMsg.then(result => { 
                 console.log("result ", result.pass, result.password)
                 req.session.flash = {
+                    message: 'Please check your registered email',
                     type: 'success',
                     intro: 'Sign Up Success!',
-                    message: 'Please check your registered email',
                     username: result.username,
                     password: result.pass
                 }
@@ -116,10 +117,20 @@ const UserController = {
         return res.json({code: 0, msg: 'Logout nho xoa access token nha front end'})
     },
 
-    changePasswordFirstTime : (req,res) => {
+    changePasswordFirstTime : async (req,res) => {
         const newPass = req.body.newPassword
         const confirmNewPass = req.body.confirmPassword
         const user = req.user
+        console.log("user value :", user.id)
+        const id = mongoose.Types.ObjectId(user.id)
+        const value = await Account.findOne({_id:id})
+        console.log("find ",value)
+        // .then(doc => {
+        //     console.log(doc);
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        // });
         
         const handleChangePassword = changePassword.saveNewPassToDb(user, newPass, confirmNewPass)
         handleChangePassword.then(response => {
@@ -130,7 +141,8 @@ const UserController = {
                     message: 'Change pass successfully, wait for admin authorization'
                 }
             }
-            return res.json(response)
+            
+            // return res.json(response)
         })
     },
 

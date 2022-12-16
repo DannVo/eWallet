@@ -22,7 +22,7 @@ async function updateIdentity(files, userId){
             console.log('in here')
             console.log(id_front)
             const updatedDoc = await Account.updateOne({_id: userId}, {
-                id_front, id_back, acc_status: 1, acc_info : 'unauthorized'
+                id_front, id_back, acc_status: 1, acc_info : 'Chờ xác minh'
             })
 
             return {code: 0, msg: 'Cap nhat anh CMND thanh cong'}

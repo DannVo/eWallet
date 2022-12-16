@@ -5,25 +5,32 @@ const Account = require('../model/Account')
 const bcrypt = require('bcrypt')
 const dotenv = require('dotenv').config({path: './.env'})
 
-async function userRegister(fields, files, secondLevelFolder){
+async function regisUser(fields, files, secondLevelFolder){
 
+    //cau 1.1
+    //thong tin dang ky tai khoan
     const phoneNumber = fields.phoneNumber[0]
-    const email = fields.email[0]
-    const hoTen = fields.hoten[0]
+    const hoten = fields.hoten[0]
     const dateBirth = fields.dateBirth[0]
     const address = fields.address[0]
+    const email = fields.email[0]
+
+
     const cmndTruoc = files.cmndTruoc[0]
     const cmndSau = files.cmndSau[0]
 
-    //validate register email existed or not
-    const isExisted = checkEmailExistence(email)
+    //cau 1.1
+    //kiem tra email va sdt da ton tai hay chua
+    const isEmailChecked = checkEmail(email)
     const isChecked = checkPhone(phoneNumber)
-    const finalObj = 
-        await isExisted.then(async result => {
+    const valueRegis = 
+        //check email
+        await isEmailChecked.then(async result => {
             if(result) 
             {
-                return {code: 104, msg: 'Email da ton tai'}
+                return {code: 104, msg: 'Email nay da duoc dang ky'}
             }else{
+                //check sdt
                 const value = await isChecked.then(checked =>{
                     console.log("Kiem tra ",checked);
                     if(checked){
@@ -31,29 +38,30 @@ async function userRegister(fields, files, secondLevelFolder){
     
                     }
                     
-                    return saveInfoToDb(phoneNumber, email, hoTen, dateBirth, address, cmndTruoc, cmndSau, secondLevelFolder)
+                    return saveRegisAccount(phoneNumber, email, hoten, dateBirth, address, cmndTruoc, cmndSau, secondLevelFolder)
                 })
                 return value
 
             }
             
-        })
-    .then(finalMsg => {
-        if(finalMsg.username) return {code: 0, msg: 'Register thanh cong', username: finalMsg.username, pass:finalMsg.password}
-        return finalMsg
+        }).then(lastResult => {
+            if(lastResult.username){
+                return {code: 0, msg: 'Register thanh cong', username: lastResult.username, pass:lastResult.password}  
+            } 
+        return lastResult
     })
     
-    return finalObj
+    return valueRegis
 }
 
-function saveInfoToDb(phoneNumber, email, hoTen, dateBirth, address, cmndTruoc, cmndSau, secondLevelFolder){
+function saveRegisAccount(phoneNumber, email, hoten, dateBirth, address, cmndTruoc, cmndSau, secondLevelFolder){
     ////move file
     const id_front = moveFile(cmndTruoc, secondLevelFolder, email)
     const id_back = moveFile(cmndSau, secondLevelFolder, email)
 
     ////tao random username, password
-    const username = createRandomUserName()
-    const password = createRandomPassword()
+    const username = randomUsername()
+    const password = randomPassword()
 
     ////add user to db
     const salt = bcrypt.genSaltSync(10)
@@ -66,7 +74,7 @@ function saveInfoToDb(phoneNumber, email, hoTen, dateBirth, address, cmndTruoc, 
         acc_status : 0,
         acc_info : 'default',
         phonenumber: phoneNumber,
-        hoten: hoTen,
+        hoten: hoten,
         email,
         birth: dateBirth,
         address,
@@ -87,7 +95,7 @@ function saveInfoToDb(phoneNumber, email, hoTen, dateBirth, address, cmndTruoc, 
     return new_accpass
 }
 
-async function checkEmailExistence(email){
+async function checkEmail(email){
     try{
         const findEmail = await Account.findOne({email: email})
         //console.log('emai find one: ', findEmail)
@@ -103,34 +111,37 @@ async function checkPhone(phone){
         const find_phone = await Account.findOne({phonenumber: phone})
         //console.log('emai find one: ', findEmail)
         if(!find_phone) return false
-        return true //true -> da ton tai
+        return true 
     }
     catch(err){
-        return false //false -> chua ton tai 
+        return false
     }
 }
 
-function createRandomUserName(){
-    let username = ''
+// cau 1.1 tao ten dang nhap 10 chu so
+function randomUsername(){
+    let name = ''
+
     for (let i = 0; i<10; i++){
-        username += Math.floor(Math.random() * 10)
+        name += Math.floor(Math.random() * 10)
     }
-    console.log(username)
 
-    return username
+    console.log("Ten tai khoan: ", name)
+    return name
 }
 
-function createRandomPassword(){
-    const chars = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const passwordLength = 6;
-    let password = "";
-
-    for (var i = 0; i < passwordLength; i++) {
-        const randomNumber = Math.floor(Math.random() * chars.length);
-        password += chars.substring(randomNumber, randomNumber +1);
+// cau 1.1 tao mat khau ngau nhien
+function randomPassword(){
+    let pass = "";
+    const kytu = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    //toi da 6 ki tu
+    for (var i = 0; i < 6; i++) {
+        const num = Math.floor(Math.random() * kytu.length);
+        // pass = kytu.substring(num+1, kytu.length);
+        pass += kytu.substring(num, num +1);
     }
-    console.log(password)
-    return password
+    console.log("Mat khau: ",pass)
+    return pass
 
 }
 
@@ -176,6 +187,6 @@ function mailing(receiverMail, username, pass){
     })
 }
 module.exports = {
-    userRegister,
+    regisUser,
     moveFile,
 }

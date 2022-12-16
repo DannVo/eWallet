@@ -69,7 +69,7 @@ async function saveNewPassToDb(user, newPass, confirmNewPass){
         const updateQuery = 
             await Account.updateOne({_id: user.id}, { 
                 password : hashPass,  
-                acc_info : user.acc_status === 0 ? 'unauthorized' : user.acc_info,
+                acc_info : user.acc_status === 0 ? 'Chờ xác minh' : user.acc_info,
                 acc_status : user.acc_status === 0 ? 1 : user.acc_status,
             })
         
